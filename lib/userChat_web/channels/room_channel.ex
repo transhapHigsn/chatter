@@ -17,7 +17,7 @@ defmodule UserChatWeb.RoomChannel do
              email: payload[:email],
              mobile: payload[:mobile]}
     user_changeset = UserChat.ChatUser.changeset(%UserChat.ChatUser{}, user)
-    UserChat.ChatUser.create_user(user_changeset)
+    UserChat.ChatUser.new(user_changeset)
     broadcast socket, "ping", payload
     {:reply, {:ok, payload}, socket}
   end
@@ -28,6 +28,11 @@ defmodule UserChatWeb.RoomChannel do
     UserChat.Message.changeset(%UserChat.Message{}, payload)
     |> UserChat.Repo.insert
     broadcast socket, "shout", payload
+    {:noreply, socket}
+  end
+
+  def handle_in("exit", payload, socket) do
+    broadcast_from socket, "leaving", payload
     {:noreply, socket}
   end
 
@@ -48,14 +53,13 @@ defmodule UserChatWeb.RoomChannel do
 
   # Add authorization logic here as required.
   defp authorized?(payload) do
-      key = Map.keys(payload)
-      IO.puts("Authenticating")
-      IO.puts(key)
-      email = payload[:email]
-      IO.puts("Got payload")
+      email = payload["email"]
+      IO.puts("Email #{email}" )
       case UserChat.ChatUser.get(email) do
           {:ok, _user} -> true
-          {:error, _resp} -> true
+          {:error, _resp} ->
+              IO.puts("unauthorized access")
+              false
       end
   end
 end

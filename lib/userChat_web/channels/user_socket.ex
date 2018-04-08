@@ -19,7 +19,14 @@ defmodule UserChatWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
+  def connect(%{"token" => token}, socket) do
+    case Phoenix.Token.verify(socket, "user socket", token, max_age: 86400) do
+      {:ok, user_id} ->
+        socket = assign(socket, :user, Repo.get!(UserChat.ChatUser, user_id))
+        {:ok, socket}
+      {:error, _} ->
+        :error
+    end
     {:ok, socket}
   end
 

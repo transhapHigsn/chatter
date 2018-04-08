@@ -20,19 +20,30 @@ import "phoenix_html"
 
 import socket from "./socket"
 
-var channel = socket.channel('room:lobby', {}); // connect to chat "room"
+var email = prompt("Enter your email: ")
 
-channel.on('ping', (payload) => {
-    var name = prompt('Enter your name: ')
-    var email = prompt('Enter your email: ')
-    var mobile = prompt('Enter your mobile: ')
+var payload = {
+    email: email,
+}
 
-    let respose = {
-        name: name,
-        email: email,
-        mobile: mobile
-    }
-})
+var channel = socket.channel('room:lobby', payload); // connect to chat "room"
+
+// channel.on('ping', (payload) => {
+//     var name = prompt('Enter your name: ')
+//     var email = prompt('Enter your email: ')
+//     var mobile = prompt('Enter your mobile: ')
+//
+//     let respose = {
+//         name: name,
+//         email: email,
+//         mobile: mobile
+//     }
+// })
+
+window.onbeforeunload = function(){
+    alert("You are leaving chat.");
+     channel.push('exit', {})
+}
 
 channel.on('shout', function (payload) { // listen to the 'shout' event
   var li = document.createElement("li"); // create new list item DOM element
@@ -41,8 +52,24 @@ channel.on('shout', function (payload) { // listen to the 'shout' event
   ul.appendChild(li);                    // append to list
 });
 
+channel.on('leaving', (payload) => {
+    alert('User is leaving.');
+})
+
 channel.on('welcome', (payload) => {
     alert("New user just joined in.");
+
+    // var name = prompt('Enter your name: ')
+    // var email = prompt('Enter your email: ')
+    // var mobile = prompt('Enter your mobile: ')
+    //
+    // let respose = {
+    //     name: name,
+    //     email: email,
+    //     mobile: mobile
+    // }
+    //
+    // channel.push('ping', respose);
 })
 
 channel.on('bye', (payload) => {
