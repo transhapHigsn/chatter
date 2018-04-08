@@ -54,7 +54,7 @@ defmodule UserChatWeb.RoomChannel do
   # Add authorization logic here as required.
   defp authorized?(payload) do
       email = payload["email"]
-      IO.puts("Email #{email}" )
+      IO.puts("Email #{email}")
       case UserChat.ChatUser.get(email) do
           {:ok, _user} -> true
           {:error, _resp} ->

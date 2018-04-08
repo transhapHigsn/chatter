@@ -22,7 +22,8 @@ defmodule UserChatWeb.UserSocket do
   def connect(%{"token" => token}, socket) do
     case Phoenix.Token.verify(socket, "user socket", token, max_age: 86400) do
       {:ok, user_id} ->
-        socket = assign(socket, :user, Repo.get!(UserChat.ChatUser, user_id))
+        socket = assign(socket, :user, UserChat.Repo.get!(UserChat.ChatUser, user_id))
+        # IO.puts("Socket is #{socket}")
         {:ok, socket}
       {:error, _} ->
         :error
@@ -40,5 +41,5 @@ defmodule UserChatWeb.UserSocket do
   #     UserChatWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "user_socket:#{socket.assigns.user_id}"
 end
